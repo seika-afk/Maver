@@ -1,65 +1,151 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalculator } from '@fortawesome/free-solid-svg-icons';
 
 export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+
+//history
+const history=useRef<ImageData[]>([]);
+
+const [mouseDown ,setMouseDown]=useState(false);
+const canvasRef=useRef<HTMLCanvasElement>(null)
+
+const prevPoint= useRef<{x:number ,y:number} | null>(null)
+
+
+
+
+
+
+//MAIN DRAW FN 
+const draw=({ctx,currentP,prevPosition}:any)=>{
+const {x:currX,y:currY}= currentP;
+const startPosition=prevPosition??currentP;
+
+//add to history 
+	if (prevPosition == null){
+		const canvas=canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+	      let snapshot=ctx.getImageData(0, 0, canvas.width, canvas.height)
+	      history.current.push(snapshot);      }}
+	}
+
+
+ctx.beginPath();
+ctx.lineWidth = 4;
+ctx.lineCap = "round";
+ctx.lineJoin = "round";
+
+ctx.moveTo(startPosition.x,startPosition.y);
+ctx.lineTo(currX,currY);
+ctx.stroke();
 }
+
+//use effect for ctrl z-> undo
+useEffect(()=>{
+const handleUndo=(e:KeyboardEvent)=>{
+    if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (!ctx || history.current.length === 0) return;
+      const prevState = history.current.pop();
+      if (prevState) ctx.putImageData(prevState, 0, 0);
+    }
+	    	
+
+}
+
+window.addEventListener("keydown", handleUndo);
+  return () => window.removeEventListener("keydown", handleUndo);
+
+
+
+},[]);
+//use effect for cursor on canvas operations
+useEffect(()=>{
+
+
+
+
+const handler=(e:MouseEvent)=>{
+if(!mouseDown) return;
+
+const currentP= getCurrentPosition(e);
+const ctx= canvasRef?.current?.getContext("2d");
+
+if (!currentP || !ctx) return;
+
+draw({ctx,currentP,prevPosition:prevPoint.current
+
+})
+prevPoint.current=currentP;
+
+};
+const getCurrentPosition=(e)=>{
+const canvas= canvasRef?.current;
+if(!canvas) return
+
+const rect=canvas?.getBoundingClientRect();
+const x = e.clientX- rect.left;
+const y= e.clientY- rect.top;
+
+
+return {x,y};
+
+}
+
+const handleMouse=()=>{
+
+setMouseDown(false)
+prevPoint.current=null;
+
+
+}
+
+canvasRef?.current?.addEventListener("mousemove",handler);
+
+window.addEventListener("mouseup",handleMouse);
+
+return ()=>{
+canvasRef?.current?.removeEventListener("mousemove",handler);
+window.removeEventListener("mouseup",handleMouse);
+
+
+}
+},[mouseDown]);
+
+return (
+<div className="main_div">
+
+<canvas 
+ref={canvasRef}
+onMouseDown={() => setMouseDown(true)}
+width={700} 
+height={700} 
+className="bg-white border-white rounded-lg">
+
+</canvas>
+
+
+
+<div className="  text-white mt-2.5 hover:text-gray-400 cursor-pointer">
+ <FontAwesomeIcon icon={faCalculator} size="2x"  />
+
+</div>
+
+
+
+
+
+</div>
+
+    
+    );
+}
+
+
+
+

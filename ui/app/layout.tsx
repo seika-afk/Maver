@@ -24,7 +24,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
+    <head>
+ <link
+          rel="stylesheet"
+          href="https://unpkg.com/cropperjs/dist/cropper.css"
+        />
+    </head>  
+    <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
