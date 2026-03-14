@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+echo "Python version should be under 3.13.6"
+source env/bin/activate
+cd ml_model
+#echo "Installing dependencies"
+#pip install -r requirements.txt
+echo "Starting SERVER"
+uvicorn main:app --reload
+
+
+

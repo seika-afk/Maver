@@ -1,0 +1,29 @@
+Page loads
+     ↓
+React mounts component
+     ↓
+useEffect draws canvas graphics
+     |
+     all the code related to drawing 
+     ↓
+User clicks calculator_button
+     ↓
+isSelecting = true
+     ↓
+User drags mouse
+     ↓
+selection rectangle updates
+     ↓
+User releases mouse
+     ↓
+handleMouseUp
+     ↓
+capture region
+     ↓
+copy to offscreen canvas
+     ↓
+convert to image
+     ↓
+image saved
+     ↓
+Model function.
