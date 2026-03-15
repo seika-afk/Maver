@@ -17,3 +17,6 @@ If you face any issue, feel free to contact me
 
 # Note 
 feel free to use any part of code anywhere.
+
+# Contributions.
+As of now it has small reach , so its open to contribution to make it better.
