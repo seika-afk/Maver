@@ -14,3 +14,6 @@ Check the uploaded demo.mp4 to see the demo
 
 If you face any issue, feel free to contact me
 
+
+# Note 
+feel free to use any part of code anywhere.
