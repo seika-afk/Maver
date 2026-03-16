@@ -206,7 +206,6 @@ ctx.lineTo(currX,currY);
 ctx.stroke();
 }
 
-//use effect for ctrl z-> undo
 useEffect(()=>{
 const handleUndo=(e:KeyboardEvent)=>{
     if ((e.ctrlKey || e.metaKey) && e.key === "z") {
